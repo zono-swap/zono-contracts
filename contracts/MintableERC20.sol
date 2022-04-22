@@ -15,7 +15,7 @@ contract MintableERC20 is ERC20 {
     modifier onlyOperator() {
         require(
             operator() == _msgSender(),
-            "HEARN: caller is not the operator"
+            "ZONO: Caller is not the operator"
         );
         _;
     }
@@ -63,12 +63,15 @@ contract MintableERC20 is ERC20 {
     function transferOperator(address newOperator) public virtual onlyOperator {
         require(
             newOperator != address(0),
-            "HEARN: new operator is the zero address"
+            "ZONO: new operator is the zero address"
         );
         emit OperatorTransferred(_operator, newOperator);
         _operator = newOperator;
     }
 
+    /**
+     * @notice Get back wrong tokens sent to the token contract
+     */
     function recoverToken(address tokenAddress, uint256 tokenAmount)
         external
         onlyOwner
@@ -77,5 +80,11 @@ contract MintableERC20 is ERC20 {
         require(tokenAddress != address(this), "Self withdraw");
         IERC20(tokenAddress).transfer(owner(), tokenAmount);
     }
-}
 
+    /**
+     * @notice Get back wrong eth sent to the token contract
+     */
+    function recoverETH(uint256 ethAmount) external onlyOwner {
+        payable(_msgSender()).transfer(ethAmount);
+    }
+}
